@@ -1,0 +1,51 @@
+# ----------------------
+# Fichiers / dossiers temporaires
+# ----------------------
+/var/
+/vendor/
+/node_modules/
+/public/build/
+
+# ----------------------
+# Logs
+# ----------------------
+/var/log/*.log
+/.phpunit.result.cache
+
+# ----------------------
+# Fichiers générés
+# ----------------------
+/public/bundles/
+/public/uploads/
+/public/media/
+/*.sqlite
+*.sqlite3
+
+# ----------------------
+# Config secrets / env
+# ----------------------
+/.env
+/.env.local
+/.env.local.php
+/.env.test
+/.env.test.local
+/.env.prod
+/.env.prod.local
+/secrets/
+
+# ----------------------
+# IDE / système
+# ----------------------
+*.idea/
+*.vscode/
+*.phpstorm.meta.php
+*.DS_Store
+Thumbs.db
+
+# ----------------------
+# Composer / Node
+# ----------------------
+composer.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
