@@ -1,22 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Logger;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class LogTestController extends AbstractController
+class ConsoleController extends AbstractController
 {
     public function __construct(
+        #[Autowire(service: 'monolog.logger.console')]
         private LoggerInterface $logger
     ) {}
 
-    #[Route('/logger', name: 'app_log_test')]
+    #[Route('/console', name: 'console_logs')]
     public function index(): Response
     {
-        $this->logger->debug('Message DEBUG' );
+        $this->logger->debug('Message DEBUG');
         $this->logger->info('Message INFO');
         $this->logger->notice('Message NOTICE');
         $this->logger->warning('Message WARNING');
@@ -24,9 +26,8 @@ final class LogTestController extends AbstractController
         $this->logger->critical('Message CRITICAL');
         $this->logger->alert('Message ALERT');
         $this->logger->emergency('Message EMERGENCY');
-
-        return $this->render('log_test/index.html.twig', [
-            'controller_name' => 'LogTestController',
-        ]);
+        return new Response('Console logs OK');
     }
 }
+
+
