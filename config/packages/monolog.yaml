@@ -4,25 +4,88 @@ monolog:
 
 when@dev:
     monolog:
+        channels:
+            - console
+            - doctrine
+            - debug_channel
+            - event
+            - profiler
+            - router
+            - http_client
+
         handlers:
             main:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
-                channels: ["console"]
-                formatter: App\Logging\CustomLineFormatter
+                channels:
+                    - '!console'
+                    - '!doctrine'
+                    - '!debug_channel'
+                    - '!event'
+                    - '!profiler'
+                    - '!router'
+                    - '!http_client'
 
-            errors:
+            console:
                 type: stream
-                path: "%kernel.logs_dir%/errors.log"
-                level: error
-                channels: ["console"]
+                path: "%kernel.logs_dir%/console.log"
+                level: debug
+                channels: [ 'console' ]
+                formatter: App\Logging\CustomLineFormatter
 
             doctrine:
                 type: stream
                 path: "%kernel.logs_dir%/doctrine.log"
                 level: debug
-                channels: [ "doctrine" ]
+                channels: [ 'doctrine' ]
+                formatter: App\Logging\CustomLineFormatter
+
+            debug_channel:
+                type: rotating_file
+                path: "%kernel.logs_dir%/debug.log"
+                level: debug
+                channels: [ 'debug_channel' ]
+                formatter: App\Logging\CustomLineFormatter
+
+            event:
+                type: rotating_file
+                path: "%kernel.logs_dir%/event.log"
+                level: info
+                channels: [ 'event' ]
+                max_files: 30
+                formatter: App\Logging\CustomLineFormatter
+
+            profiler:
+                type: rotating_file
+                path: "%kernel.logs_dir%/profiler.log"
+                level: info
+                channels: [ 'profiler' ]
+                max_files: 30
+                formatter: App\Logging\CustomLineFormatter
+
+            router:
+                type: rotating_file
+                path: "%kernel.logs_dir%/router.log"
+                level: info
+                channels: [ 'router' ]
+                max_files: 30
+                formatter: App\Logging\CustomLineFormatter
+
+            http_client:
+                type: fingers_crossed
+                action_level: error
+                buffer_size: 50
+                handler: http_client_nested
+                channels: [ 'http_client' ]
+
+            http_client_nested:
+                type: rotating_file
+                path: "%kernel.logs_dir%/http_client.log"
+                level: debug
+                max_files: 30
+                formatter: App\Logging\CustomLineFormatter
+
 #            console:
 #                type: console
 #                process_psr_3_messages: false
