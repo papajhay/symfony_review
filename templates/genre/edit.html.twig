@@ -1,0 +1,39 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}{{ genre is defined ? 'Modifier ' ~ genre.name : 'Nouveau genre' }}{% endblock %}
+
+{% block body %}
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">
+            {{ genre is defined ? 'Modifier le genre' : 'Créer un nouveau genre' }}
+        </h1>
+
+        <div class="bg-white shadow rounded-lg p-8">
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+            {{ form_errors(form) }}
+
+            <div>
+                {{ form_label(form.name, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                {{ form_widget(form.name, {'attr': {'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'}}) }}
+                {{ form_errors(form.name) }}
+            </div>
+
+            <div>
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium text-gray-700'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500', 'rows': 5}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <div class="flex justify-end space-x-4 pt-6">
+                <a href="{{ path('genre_index') }}" class="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+                    Annuler
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primarydark transition">
+                    {{ genre is defined ? 'Mettre à jour' : 'Créer' }}
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

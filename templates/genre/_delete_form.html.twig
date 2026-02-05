@@ -1,0 +1,64 @@
+{% if is_granted('genre.delete', genre) %}
+    <!-- Bouton déclencheur du modal -->
+    <button type="button" data-modal-target="delete-modal-{{ genre.id }}" data-modal-toggle="delete-modal-{{ genre.id }}"
+            class="text-red-600 hover:text-red-800 font-medium flex items-center transition duration-150">
+        <i class="fa-solid fa-trash-can w-4 h-4 mr-1.5"></i>
+        Supprimer
+    </button>
+
+    <!-- Le modal -->
+    <div id="delete-modal-{{ genre.id }}" tabindex="-1" aria-hidden="true"
+         class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-md max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-2xl shadow-2xl border border-gray-200">
+
+                <!-- Header -->
+                <div class="flex items-center justify-between p-5 border-b border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900">
+                        Confirmer la suppression
+                    </h3>
+                    <button type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center transition"
+                            data-modal-hide="delete-modal-{{ genre.id }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span class="sr-only">Fermer</span>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 space-y-4">
+                    <p class="text-base text-gray-700">
+                        Voulez-vous vraiment supprimer le genre
+                        <span class="font-semibold text-gray-900">{{ genre.name }}</span> ?
+                    </p>
+                    <p class="text-sm text-red-600 font-medium bg-red-50 p-3 rounded-lg border border-red-100">
+                        Cette action est irréversible et supprimera définitivement ce genre.
+                    </p>
+                </div>
+
+                <!-- Footer avec boutons -->
+                <div class="flex items-center justify-end p-6 space-x-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <!-- Bouton Annuler -->
+                    <button
+                        data-modal-hide="delete-modal-{{ genre.id }}"
+                        type="button"
+                        class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition duration-200">
+                        Annuler
+                    </button>
+
+                    <!-- Formulaire de suppression réel -->
+                    <form method="post" action="{{ path('genre_delete', {id: genre.id}) }}" class="inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ genre.id) }}">
+                        <button type="submit"
+                                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200 shadow-sm">
+                            Oui, supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
