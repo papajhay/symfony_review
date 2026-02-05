@@ -1,0 +1,117 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl border border-gray-200">
+
+            {# Titre et sous-titre #}
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Créer un compte
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Rejoignez Review Sym et commencez à partager vos avis
+                </p>
+            </div>
+
+            {# Erreurs globales de vérification email (si tu utilises le système VerifyEmail) #}
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
+                    {{ flash_error }}
+                </div>
+            {% endfor %}
+
+            {# Erreurs du formulaire #}
+            {{ form_errors(registrationForm) }}
+
+            {# Formulaire d'inscription #}
+            {{ form_start(registrationForm, {
+                'attr': {
+                    'class': 'mt-8 space-y-6'
+                }
+            }) }}
+
+            {# Champ Email #}
+            <div>
+                {{ form_label(registrationForm.email, null, {
+                    'label_attr': {
+                        'class': 'block text-sm font-medium text-gray-700'
+                    }
+                }) }}
+                {{ form_widget(registrationForm.email, {
+                    'attr': {
+                        'class': 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition',
+                        'autocomplete': 'email'
+                    }
+                }) }}
+                {{ form_errors(registrationForm.email) }}
+            </div>
+
+            {# Champ Nom d'utilisateur (si tu en as un) #}
+            {% if registrationForm.username is defined %}
+                <div>
+                    {{ form_label(registrationForm.username, null, {
+                        'label_attr': {
+                            'class': 'block text-sm font-medium text-gray-700'
+                        }
+                    }) }}
+                    {{ form_widget(registrationForm.username, {
+                        'attr': {
+                            'class': 'mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition'
+                        }
+                    }) }}
+                    {{ form_errors(registrationForm.username) }}
+                </div>
+            {% endif %}
+
+            <div>
+                {{ form_label(registrationForm.plainPassword) }}
+                {{ form_widget(registrationForm.plainPassword, {
+                    'attr': {
+                        'class': 'space-y-4'
+                    }
+                }) }}
+                {{ form_errors(registrationForm.plainPassword) }}
+            </div>
+
+            {# CGU / RGPD (optionnel mais recommandé) #}
+{#            <div class="flex items-start">#}
+{#                <div class="flex items-center h-5">#}
+{#                    <input id="agree_terms" name="agree_terms" type="checkbox"#}
+{#                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">#}
+{#                </div>#}
+{#                <div class="ml-3 text-sm">#}
+{#                    <label for="agree_terms" class="font-medium text-gray-700">#}
+{#                        J'accepte les <a href="#" class="text-indigo-600 hover:text-indigo-800">conditions d'utilisation</a> et la <a href="#" class="text-indigo-600 hover:text-indigo-800">politique de confidentialité</a>#}
+{#                    </label>#}
+{#                </div>#}
+{#            </div>#}
+
+            {# Bouton Inscription #}
+            <div>
+                <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-200 shadow-md">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </span>
+                    Créer mon compte
+                </button>
+            </div>
+
+            {# Lien vers la connexion #}
+            <div class="text-center text-sm text-gray-600">
+                Déjà inscrit ?
+                <a href="{{ path('app_login') }}"
+                   class="font-medium text-indigo-600 hover:text-indigo-800 transition">
+                    Se connecter
+                </a>
+            </div>
+
+            {{ form_end(registrationForm) }}
+        </div>
+    </div>
+{% endblock %}

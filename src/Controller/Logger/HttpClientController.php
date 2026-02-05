@@ -14,43 +14,29 @@ class HttpClientController extends AbstractController
 {
     public function __construct(
         #[Autowire(service: 'monolog.logger.http_client')]
-        private LoggerInterface $logger,
-        private HttpClientInterface $httpClient
+        private LoggerInterface $logger
     ) {}
 
     #[Route('/http-client', name: 'http_client_logs')]
     public function index(): Response
     {
-        $this->logger->info('Appel HTTP externe démarré');
+        $this->logger->info('Appel HTTP démarré');
 
-        try {
-            $response = $this->httpClient->request('GET', 'https://httpbin.org/status/500');
+        $statusCode = 500;
 
-            $this->logger->info('Statut HTTP', [
-                'status' => $response->getStatusCode(),
-            ]);
+        switch ($statusCode) {
+            case 200:
+                $this->logger->info('API OK');
+                break;
 
-            // Déclencher une exception si code HTTP >= 400
-            if ($response->getStatusCode() >= 400) {
-                throw new HttpException(
-                    $response->getStatusCode(),
-                    'Erreur HTTP détectée lors de l’appel à HTTPBin'
-                );
-            }
+            case 401:
+                $this->logger->warning('Non autorisé');
+                break;
 
-        } catch (HttpException $e) {
-            $this->logger->error('HttpException capturée', [
-                'status' => $e->getStatusCode(),
-                'message' => $e->getMessage(),
-            ]);
-
-            // Optionnel : ré-lancer pour que Symfony gère la réponse HTTP
-            throw $e;
-        } catch (\Exception $e) {
-            $this->logger->error('Autre exception', ['exception' => $e]);
-            throw $e;
+            default:
+                $this->logger->error('Erreur HTTP');
         }
 
-        return new Response('HTTP Client OK');
+        return new Response('Fin OK');
     }
 }
