@@ -14,13 +14,12 @@ class GenreType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
-            ->add('description')
-            ->add('CreatedBy', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
+            ->add('name', null, [
+                'label' => 'Nom du genre',
             ])
-        ;
+            ->add('description', null, [
+                'label' => 'Description',
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

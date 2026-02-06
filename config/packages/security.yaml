@@ -45,9 +45,16 @@ security:
 
     # Note: Only the *first* matching rule is applied
     access_control:
-         - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Pages publiques
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/verify, roles: PUBLIC_ACCESS }
 
+        # Admin
+        - { path: ^/admin, roles: [ ROLE_ADMIN, ROLE_SUPER_ADMIN ] }
+
+        # Tout le reste : utilisateur connecté
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 when@test:
     security:
         password_hashers:

@@ -32,12 +32,13 @@ class GenreController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $genre = new Genre();
-        $genre->setCreatedBy($this->getUser());
 
         $form = $this->createForm(GenreType::class, $genre);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $genre->setCreatedBy($this->getUser());
+
             $em->persist($genre);
             $em->flush();
 
