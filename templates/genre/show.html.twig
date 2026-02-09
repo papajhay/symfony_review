@@ -3,8 +3,9 @@
 {% block title %}Genre : {{ genre.name }}{% endblock %}
 
 {% block body %}
-    <div class="max-w-3xl mx-auto">
+    {% include 'layouts/partials/_navbar.html.twig' %}
 
+    <div class="max-w-3xl mx-auto">
         {# Flash messages #}
         {% for label, messages in app.flashes %}
             {% for message in messages %}
@@ -15,7 +16,7 @@
         {% endfor %}
 
         {# Card principale #}
-        <div class="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
+        <div class="mt-20 bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
 
             {# En-tête de la card #}
             <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-8 py-6 text-white">

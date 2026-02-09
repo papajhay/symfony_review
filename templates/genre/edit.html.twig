@@ -3,6 +3,8 @@
 {% block title %}{{ genre is defined ? 'Modifier ' ~ genre.name : 'Nouveau genre' }}{% endblock %}
 
 {% block body %}
+    {% include 'layouts/partials/_navbar.html.twig' %}
+
     <div class="max-w-2xl mx-auto">
         <h1 class="text-3xl font-bold text-gray-900 mb-8">
             {{ genre is defined ? 'Modifier le genre' : 'Créer un nouveau genre' }}
