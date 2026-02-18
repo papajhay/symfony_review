@@ -8,9 +8,14 @@ framework:
     # rate-limiter
     rate_limiter:
         login:
-            policy: 'sliding_window'
+            policy: sliding_window
             limit: 5
             interval: '1 minute'
+
+        genre_creation:
+            policy: sliding_window
+            limit: 5
+            interval: '2 hours'
 
     #esi: true
     #fragments: true

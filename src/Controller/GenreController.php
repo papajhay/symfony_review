@@ -6,6 +6,7 @@ use App\Entity\Genre;
 use App\Form\GenreType;
 use App\Repository\GenreRepository;
 use App\Security\Voter\GenreVoter;
+use App\Service\GenreCreationLimiter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,12 +15,12 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/genre')]
-#[IsGranted(GenreVoter::VIEW)]
 class GenreController extends AbstractController
 {
     #[Route('', name: 'genre_index', methods: ['GET'])]
     public function index(GenreRepository $repository): Response
     {
+        $this->denyAccessUnlessGranted(GenreVoter::LIST, Genre::class);
         $genres = $repository->findAll();
 
         return $this->render('genre/list.html.twig', [
@@ -29,7 +30,11 @@ class GenreController extends AbstractController
 
     #[Route('/new', name: 'genre_new', methods: ['GET', 'POST'])]
     #[IsGranted(GenreVoter::CREATE)]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(
+        Request $request,
+        EntityManagerInterface $em,
+        GenreCreationLimiter $creationLimiter
+    ): Response
     {
         $genre = new Genre();
 
@@ -37,6 +42,17 @@ class GenreController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $limit = $creationLimiter->consume($this->getUser());
+
+            if (!$limit['allowed']) {
+                $this->addFlash(
+                    'error',
+                    "Vous avez atteint la limite de création. Réessayez dans {$limit['retryAfter']} secondes."
+                );
+
+                return $this->redirectToRoute('genre_index');
+            }
+
             $genre->setCreatedBy($this->getUser());
 
             $em->persist($genre);
