@@ -12,6 +12,7 @@ class GenreVoter extends Voter
 {
     private Security $security;
 
+    public const LIST   = 'genre.list';
     public const VIEW   = 'genre.view';
     public const EDIT   = 'genre.edit';
     public const DELETE = 'genre.delete';
@@ -25,13 +26,23 @@ class GenreVoter extends Voter
     protected function supports(string $attribute, $subject): bool
     {
         // VIEW & CREATE sans objet (liste + création)
-        if (in_array($attribute, [self::VIEW, self::CREATE], true) && $subject === null) {
-            return true;
-    }
+        if (!in_array($attribute, [
+            self::LIST,
+            self::VIEW,
+            self::EDIT,
+            self::DELETE,
+            self::CREATE,
+        ], true)) {
+            return false;
+        }
 
-        // EDIT & DELETE nécessitent un Genre
-        return $subject instanceof Genre
-            && in_array($attribute, [self::VIEW, self::EDIT, self::DELETE], true);
+        // LIST & CREATE s'appliquent à la classe
+        if (in_array($attribute, [self::LIST, self::CREATE], true)) {
+            return $subject === null || $subject === Genre::class;
+        }
+
+        // VIEW, EDIT, DELETE nécessitent une instance
+        return $subject instanceof Genre;
     }
 
 
@@ -42,25 +53,39 @@ class GenreVoter extends Voter
             return false;
         }
 
-        // VIEW & CREATE sans sujet
-        if ($subject === null && in_array($attribute, [self::VIEW, self::CREATE], true)) {
-            return true;
-        }
-
-        /** @var Genre $genre */
-        $genre = $subject;
-
-        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
-            return true;
-        }
-
         return match ($attribute) {
-            self::EDIT, self::DELETE =>
-                $genre->getCreatedBy()?->getId() === $user->getId(),
-
-            self::VIEW => true,
-
-            default => false,
+            self::LIST   => $this->canList($user),
+            self::VIEW   => $this->canView(),
+            self::CREATE => $this->canCreate(),
+            self::EDIT   => $this->canEdit($subject),
+            self::DELETE => $this->canDelete($subject),
+            default      => false,
         };
+    }
+
+    private function canList(UserInterface $user): bool
+    {
+
+        return $this->security->isGranted('ROLE_USER');
+    }
+
+    private function canView(): bool
+    {
+        return $this->security->isGranted('ROLE_USER');
+    }
+
+    private function canCreate(): bool
+    {
+        return $this->security->isGranted('ROLE_ADMIN');
+    }
+
+    private function canEdit(Genre $genre): bool
+    {
+        return $this->security->isGranted('ROLE_ADMIN');
+    }
+
+    private function canDelete(Genre $genre): bool
+    {
+        return $this->security->isGranted('ROLE_ADMIN');
     }
 }

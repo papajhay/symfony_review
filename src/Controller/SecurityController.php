@@ -4,26 +4,29 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class   SecurityController extends AbstractController
+class  SecurityController extends AbstractController
 {
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, Request $request, RateLimiterFactory $loginLimiter): Response
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+        Request $request,
+        RateLimiterFactoryInterface $loginLimiter
+    ): Response
     {
-        $limiter = $loginLimiter->create($request->getClientIp());
+            $limiter = $loginLimiter->create($request->getClientIp());
+            $result = $limiter->consume(1);
 
-        if (!$limiter->consume(1)->isAccepted()) {
-            $request->getSession()->getFlashBag()->add(
-                'error',
-                'Trop de tentatives de connexion. Réessayez dans quelques minutes.'
-            );
+            if (!$result->isAccepted()) {
+                $seconds = $result->getRetryAfter()->getTimestamp() - time();
+                $this->addFlash('error', 'Trop de tentatives de connexion. Réessayez dans quelques minutes');
+            }
 
-            return $this->redirectToRoute('app_login');
-        }
+        //            return $this->redirectToRoute('app_login');
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
