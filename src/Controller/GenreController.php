@@ -18,18 +18,39 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class GenreController extends AbstractController
 {
     #[Route('', name: 'genre_index', methods: ['GET'])]
-    public function index(GenreRepository $repository): Response
+    public function index(GenreRepository $repository, Request $request): Response
     {
         $this->denyAccessUnlessGranted(GenreVoter::LIST, Genre::class);
-        $genres = $repository->findAll();
+
+        $limit = 5;
+        $page = max(1, $request->query->getInt('page', 1));
+        $offset = ($page - 1) * $limit;
+        $offset = ($page - 1) * $limit;
+
+        // Récupération des genres avec pagination
+        $genres = $repository->createQueryBuilder('g')
+            ->orderBy('g.id', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        // Nombre total de genres pour calculer les pages
+        $totalGenres = $repository->createQueryBuilder('g')
+            ->select('COUNT(g.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalPages = ceil($totalGenres / $limit);
 
         return $this->render('genre/list.html.twig', [
             'genres' => $genres,
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
         ]);
     }
 
     #[Route('/new', name: 'genre_new', methods: ['GET', 'POST'])]
-    #[IsGranted(GenreVoter::CREATE)]
     public function new(
         Request $request,
         EntityManagerInterface $em,
@@ -37,6 +58,11 @@ class GenreController extends AbstractController
     ): Response
     {
         $genre = new Genre();
+
+        if (!$this->isGranted(GenreVoter::CREATE, $genre)) {
+            $this->addFlash('error', 'Vous n’avez pas la permission de créer un genre.');
+            return $this->redirectToRoute('genre_index');
+        }
 
         $form = $this->createForm(GenreType::class, $genre);
         $form->handleRequest($request);

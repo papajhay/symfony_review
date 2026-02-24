@@ -27,19 +27,21 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const flashMessages = document.querySelectorAll('.flash-message');
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.querySelectorAll('.flash-message');
+            messages.forEach((msg, index) => {
+                setTimeout(() => {
+                    // slide + fade in
+                    msg.style.opacity = '1';
+                    msg.style.transform = 'translateY(0)';
+                }, index * 150); // petit délai entre les messages
 
-            flashMessages.forEach(function (msg) {
-                // Disparaît après 3 secondes (3000 ms)
-                setTimeout(function () {
+                // auto-hide après 4s
+                setTimeout(() => {
                     msg.style.opacity = '0';
                     msg.style.transform = 'translateY(-10px)';
-                    // Supprime complètement l'élément après la transition (300ms)
-                    setTimeout(function () {
-                        msg.remove();
-                    }, 300);
-                }, 3000);
+                    setTimeout(() => msg.remove(), 500);
+                }, 4000);
             });
         });
     </script>
