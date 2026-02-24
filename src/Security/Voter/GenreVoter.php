@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Genre;
+use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -25,67 +26,67 @@ class GenreVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        // VIEW & CREATE sans objet (liste + création)
+
         if (!in_array($attribute, [
             self::LIST,
             self::VIEW,
+            self::CREATE,
             self::EDIT,
             self::DELETE,
-            self::CREATE,
-        ], true)) {
+        ])) {
             return false;
         }
 
-        // LIST & CREATE s'appliquent à la classe
-        if (in_array($attribute, [self::LIST, self::CREATE], true)) {
-            return $subject === null || $subject === Genre::class;
+        // LIST et CREATE peuvent recevoir class, null ou instance
+        if (in_array($attribute, [self::LIST, self::CREATE])) {
+            return $subject === null
+                || $subject instanceof Genre
+                || $subject === Genre::class;
         }
 
-        // VIEW, EDIT, DELETE nécessitent une instance
+        // Les autres nécessitent une instance
         return $subject instanceof Genre;
     }
-
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        if (!$user instanceof UserInterface) {
+
+        if (!$user instanceof User) {
             return false;
         }
 
+        // SUPER ADMIN passe toujours
+        if (in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
+            return true;
+        }
+
+        // ADMIN passe toujours
+        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return true;
+        }
+
         return match ($attribute) {
-            self::LIST   => $this->canList($user),
-            self::VIEW   => $this->canView(),
-            self::CREATE => $this->canCreate(),
-            self::EDIT   => $this->canEdit($subject),
-            self::DELETE => $this->canDelete($subject),
+            self::LIST   => $user->hasGroup('genre_list'),
+            self::VIEW   => $user->hasGroup('genre_view'),
+            self::CREATE => $user->hasGroup('genre_create'),
+            self::EDIT   => $user->hasGroup('genre_edit'),
+            self::DELETE => $user->hasGroup('genre_delete'),
             default      => false,
         };
     }
 
-    private function canList(UserInterface $user): bool
+    private function canList(User $user): bool { return $user->hasGroup('genre_list'); }
+    private function canView(User $user): bool { return $user->hasGroup('genre_view'); }
+    //private function canCreate(User $user): bool { return $user->hasGroup('genre_create'); }
+    private function canCreate(User $user): bool
     {
-
-        return $this->security->isGranted('ROLE_USER');
+        dump($this->getUser()->getGroups()); die();
+        dump($user->getGroups());
+        dump($user->hasGroup('genre_create'));
+        die;
     }
+    private function canEdit(User $user): bool { return $user->hasGroup('genre_edit'); }
+    private function canDelete(User $user): bool { return $user->hasGroup('genre_delete'); }
 
-    private function canView(): bool
-    {
-        return $this->security->isGranted('ROLE_USER');
-    }
-
-    private function canCreate(): bool
-    {
-        return $this->security->isGranted('ROLE_ADMIN');
-    }
-
-    private function canEdit(Genre $genre): bool
-    {
-        return $this->security->isGranted('ROLE_ADMIN');
-    }
-
-    private function canDelete(Genre $genre): bool
-    {
-        return $this->security->isGranted('ROLE_ADMIN');
-    }
 }

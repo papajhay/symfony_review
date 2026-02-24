@@ -54,6 +54,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Genre::class, mappedBy: 'CreatedBy')]
     private Collection $genres;
 
+    #[ORM\Column(type: 'json')]
+    private array $groups = [];
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -225,4 +228,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getGroups(): array
+    {
+        return $this->groups;
+    }
+
+    public function setGroups(array $groups): self
+    {
+        $this->groups = $groups;
+
+        return $this;
+    }
+
+    public function addGroup(string $group): self
+    {
+        if (!in_array($group, $this->groups, true)) {
+            $this->groups[] = $group;
+        }
+
+        return $this;
+    }
+
+    public function hasGroup(string $group): bool
+    {
+        return in_array($group, $this->getGroups(), true);
+    }
 }

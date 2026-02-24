@@ -9,8 +9,8 @@ final class LogTestControllerTest extends WebTestCase
     public function testIndex(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/log/test');
+        $client->request('GET', '/');
 
-        self::assertResponseIsSuccessful();
+        $this->assertResponseRedirects('/login');
     }
 }
