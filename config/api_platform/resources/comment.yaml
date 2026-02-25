@@ -1,0 +1,23 @@
+App\Entity\Comment:
+    normalizationContext:
+        groups: ['comment:read']
+    denormalizationContext:
+        groups: ['comment:write']
+
+    operations:
+        ApiPlatform\Metadata\GetCollection: ~
+
+        ApiPlatform\Metadata\Get: ~
+
+        ApiPlatform\Metadata\Post:
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
+            processor: App\State\CommentProcessor
+
+        ApiPlatform\Metadata\Put:
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
+
+        ApiPlatform\Metadata\Patch:
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
+
+        ApiPlatform\Metadata\Delete:
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')"
