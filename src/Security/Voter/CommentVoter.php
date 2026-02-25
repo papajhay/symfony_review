@@ -10,20 +10,31 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class CommentVoter extends Voter
 {
-    public const EDIT = 'COMMENT_EDIT';
-    public const DELETE = 'COMMENT_DELETE';
-
-    private Security $security;
-
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
+    public const LIST   = 'comment.list';
+    public const VIEW   = 'comment.view';
+    public const CREATE = 'comment.create';
+    public const EDIT   = 'comment.edit';
+    public const DELETE = 'comment.delete';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $subject instanceof Comment
-            && in_array($attribute, [self::EDIT, self::DELETE], true);
+        if (!in_array($attribute, [
+            self::LIST,
+            self::VIEW,
+            self::CREATE,
+            self::EDIT,
+            self::DELETE,
+        ], true)) {
+            return false;
+        }
+
+        if (in_array($attribute, [self::LIST, self::CREATE], true)) {
+            return $subject === null
+                || $subject instanceof Comment
+                || $subject === Comment::class;
+        }
+
+        return $subject instanceof Comment;
     }
 
     protected function voteOnAttribute(
@@ -37,16 +48,32 @@ class CommentVoter extends Voter
             return false;
         }
 
-        /** @var Comment $comment */
-        $comment = $subject;
-
-        // SUPER ADMIN : accès total
-        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
+        // SUPER ADMIN bypass
+        if (in_array('ROLE_SUPER_ADMIN', $user->getRoles(), true)) {
             return true;
         }
 
-        // ️ Auteur du commentaire
-        return $comment->getCreatedBy() !== null
-            && $comment->getCreatedBy()->getId() === $user->getId();
+        return match ($attribute) {
+
+            self::LIST, self::VIEW => $user->hasGroup('group_read'),
+
+            self::CREATE => $user->hasGroup('group_create'),
+
+            self::EDIT =>
+                $user->hasGroup('group_edit')
+                || (
+                    $subject instanceof Comment
+                    && $subject->getCreatedBy()?->getId() === $user->getId()
+                ),
+
+            self::DELETE =>
+                $user->hasGroup('group_delete')
+                || (
+                    $subject instanceof Comment
+                    && $subject->getCreatedBy()?->getId() === $user->getId()
+                ),
+
+            default => false,
+        };
     }
 }

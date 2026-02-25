@@ -67,26 +67,12 @@ class GenreVoter extends Voter
         }
 
         return match ($attribute) {
-            self::LIST   => $user->hasGroup('genre_list'),
-            self::VIEW   => $user->hasGroup('genre_view'),
-            self::CREATE => $user->hasGroup('genre_create'),
-            self::EDIT   => $user->hasGroup('genre_edit'),
-            self::DELETE => $user->hasGroup('genre_delete'),
+            self::LIST, self::VIEW => $user->hasGroup('group_read'),
+            self::CREATE => $user->hasGroup('group_create'),
+            self::EDIT   => $user->hasGroup('group_edit'),
+            self::DELETE => $user->hasGroup('group_delete'),
             default      => false,
         };
     }
-
-    private function canList(User $user): bool { return $user->hasGroup('genre_list'); }
-    private function canView(User $user): bool { return $user->hasGroup('genre_view'); }
-    //private function canCreate(User $user): bool { return $user->hasGroup('genre_create'); }
-    private function canCreate(User $user): bool
-    {
-        dump($this->getUser()->getGroups()); die();
-        dump($user->getGroups());
-        dump($user->hasGroup('genre_create'));
-        die;
-    }
-    private function canEdit(User $user): bool { return $user->hasGroup('genre_edit'); }
-    private function canDelete(User $user): bool { return $user->hasGroup('genre_delete'); }
 
 }
